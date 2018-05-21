@@ -7,22 +7,22 @@ class Student
   #  with DB[:conn]
 
   attr_accessor :name, :grade
-  attr_reader :id 
+  attr_reader :id
 
   def initialize(name, grade, id=nil)
     @name = name
     @grade = grade
-    @id = id 
+    @id = id
   end
 
   def self.create_table
-    sql = <<-SQL 
+    sql = <<-SQL
     CREATE TABLE students (
       id INTEGER PRIMARY KEY,
-      name TEXT, 
+      name TEXT,
       grade INTEGER
     );
-    SQL 
+    SQL
 
     DB[:conn].execute(sql)
   end
@@ -30,18 +30,18 @@ class Student
   def self.drop_table
     sql = <<-SQL
     DROP TABLE students;
-    SQL 
+    SQL
     DB[:conn].execute(sql)
   end
 
-  def save 
-    if self.id 
-      self.update 
+  def save
+    if self.id
+      self.update
     else
-      sql = <<-SQL 
+      sql = <<-SQL
       INSERT INTO students (name, grade)
       VALUES (?,?)
-      SQL 
+      SQL
 
       DB[:conn].execute(sql, self.name, self.grade)
       @id = DB[:conn].execute("SELECT last_insert_rowid() FROM students")[0][0]
@@ -64,20 +64,16 @@ class Student
     SELECT * FROM students
     WHERE name = ?
     LIMIT 1;
-    SQL 
+    SQL
     DB[:conn].execute(sql, name).map do |row|
       self.new_from_db(row)
     end.first
   end
 
-  def update 
-    sql = <<-SQL 
+  def update
+    sql = <<-SQL
     UPDATE students SET name = ?, grade = ? WHERE id = ?
     SQL
     DB[:conn].execute(sql, self.name, self.grade, self.id)
   end
-end
-    
-
-
 end
